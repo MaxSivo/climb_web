@@ -1,13 +1,62 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* src/MatrixBoard.css */
+.matrix-container {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center;
+  /* justify-content: center;
+  height: 100vh; /* Full height of the viewport */
+  margin-left: 100px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.image-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 100px;
+}
+
+.moonboard-image {
+  display: block;
+  width: 800px; /* Set the width to match the desired size */
+  height: 1200px; /* Set the height to match the desired size */
+}
+
+.grid-container {
+  position: absolute;
+  top: 1;
+  left: 2;
+  width: 650px; /* Match the width of the image */
+  height: 1100px; /* Match the height of the image */
+  display: grid;
+  grid-template-rows: repeat(18, 1fr);
+  grid-template-columns: repeat(11, 1fr);
+  margin-left: 40px;
+  margin-top: 25px;
+
+}
+
+.grid-item {
+  position: absolute;
+  width: 150%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.grid-item {
+  width: 8.2%; /* Adjust this value to match the size of the holds */
+  height: 5.5%; /* Adjust this value to match the size of the holds */
+}
+.grid-item.non-selectable {
+  background-color: rgba(255, 0, 0, 0.3); /* Example visual feedback */
+  pointer-events: none;
+}
+
+.grid-item.selected {
+  background-color: blue; /* Selected cells */
 }
