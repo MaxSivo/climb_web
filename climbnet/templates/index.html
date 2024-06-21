@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoonBoard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h2>Predicted grade: {{ pred }}</h2> 
+    <div class="matrix-container">
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='moonboard2016Background.jpg') }}" alt="MoonBoard" class="moonboard-image">
+            <div class="grid-container" id="grid-container">
+                <!-- Grid items will be added dynamically by JavaScript -->
+            </div>
+        </div>
+        <button onclick="exportPositions()" style="margin-top: 20px;">Export Positions</button>
+    </div>
+    
+    <script>
+        const rows = 18;
+        const cols = 11;
+        const gridContainer = document.getElementById('grid-container');
+        const matrix = Array.from({ length: rows }, (_, rowIndex) => 
+            Array.from({ length: cols }, (_, colIndex) => ({
+                selected: false,
+                selectable: !(
+                    (rowIndex === 0 && colIndex === 9) ||  
+                    (rowIndex === 0 && colIndex === 5) ||
+                    (rowIndex === 1 && colIndex === 0) ||
+                    (rowIndex === 1 && colIndex === 1) ||
+                    (rowIndex === 1 && colIndex === 2) ||
+                    (rowIndex === 1 && colIndex === 4) ||
+                    (rowIndex === 1 && colIndex === 5) ||
+                    (rowIndex === 1 && colIndex === 7) ||
+                    (rowIndex === 1 && colIndex === 8) ||
+                    (rowIndex === 1 && colIndex === 9) ||
+                    (rowIndex === 1 && colIndex === 10) ||
+                    (rowIndex === 3 && colIndex === 9) ||
+                    (rowIndex === 3 && colIndex === 10) ||
+                    (rowIndex === 0 && colIndex === 5) ||
+                    (rowIndex === 4 && colIndex === 1) ||  
+                    (rowIndex === 10 && colIndex === 0) ||
+                    (rowIndex === 11 && colIndex === 0) ||
+                    (rowIndex === 12 && colIndex === 0) ||
+                    (rowIndex === 12 && colIndex === 7) ||
+                    (rowIndex === 13 && colIndex === 1) ||
+                    (rowIndex === 13 && colIndex === 1) ||
+                    (rowIndex === 13 && colIndex === 4) ||
+                    (rowIndex === 13 && colIndex === 6) ||
+                    (rowIndex === 14 && colIndex === 0) ||
+                    (rowIndex === 14 && colIndex === 2) ||
+                    (rowIndex === 14 && colIndex === 3) ||
+                    (rowIndex === 14 && colIndex === 4) ||
+                    (rowIndex === 14 && colIndex === 5) ||
+                    (rowIndex === 14 && colIndex === 7) ||
+                    (rowIndex === 14 && colIndex === 9) ||
+                    (rowIndex === 14 && colIndex === 10) ||
+                    (rowIndex === 15 && colIndex === 0) ||
+                    (rowIndex === 15 && colIndex === 2) ||
+                    (rowIndex === 15 && colIndex === 4) ||
+                    (rowIndex === 15 && colIndex === 5) ||
+                    (rowIndex === 15 && colIndex === 6) ||
+                    (rowIndex === 15 && colIndex === 7) ||
+                    (rowIndex === 15 && colIndex === 8) ||
+                    (rowIndex === 15 && colIndex === 9) ||
+                    (rowIndex === 15 && colIndex === 10) ||
+                    (rowIndex === 16 && colIndex === 0) ||
+                    (rowIndex === 16 && colIndex === 1) ||
+                    (rowIndex === 16 && colIndex === 2) ||
+                    (rowIndex === 16 && colIndex === 3) ||
+                    (rowIndex === 16 && colIndex === 4) ||
+                    (rowIndex === 16 && colIndex === 5) ||
+                    (rowIndex === 16 && colIndex === 7) ||
+                    (rowIndex === 16 && colIndex === 8) ||
+                    (rowIndex === 16 && colIndex === 10) ||
+                    (rowIndex === 17 && colIndex === 0)  ||
+                    (rowIndex === 17 && colIndex === 1)  ||
+                    (rowIndex === 17 && colIndex === 2)  ||
+                    (rowIndex === 17 && colIndex === 3)  ||
+                    (rowIndex === 17 && colIndex === 4)  ||
+                    (rowIndex === 17 && colIndex === 5)  ||
+                    (rowIndex === 17 && colIndex === 6)  ||
+                    (rowIndex === 17 && colIndex === 7)  ||
+                    (rowIndex === 17 && colIndex === 8)  ||
+                    (rowIndex === 17 && colIndex === 9)  ||
+                    (rowIndex === 17 && colIndex === 10)
+                )
+            }))
+        );
+
+        const selectedPositions = [];
+        
+        function handleCellClick(rowIndex, colIndex) {
+            if (!matrix[rowIndex][colIndex].selectable) return;
+
+            const totalSelected = selectedPositions.length;
+            const isCurrentlySelected = matrix[rowIndex][colIndex].selected;
+
+            if (!isCurrentlySelected && totalSelected >= 15) {
+                alert('Maximum of 15 positions can be selected.');
+                return;
+            }
+
+            if (isCurrentlySelected) {
+                matrix[rowIndex][colIndex].selected = false;
+                const cell = document.getElementById(`cell-${rowIndex}-${colIndex}`);
+                cell.style.backgroundColor = 'transparent';
+                const index = selectedPositions.findIndex(pos => pos.row === rowIndex && pos.col === colIndex);
+                if (index !== -1) selectedPositions.splice(index, 1);
+            } else {
+                matrix[rowIndex][colIndex].selected = true;
+                const cell = document.getElementById(`cell-${rowIndex}-${colIndex}`);
+                cell.style.backgroundColor = totalSelected === 0 ? 'green' : (totalSelected === 14 ? 'red' : 'blue');
+                selectedPositions.push({ row: rowIndex, col: colIndex });
+            }
+        }
+
+        function exportPositions() {
+            if (selectedPositions.length < 4) {
+                alert('Minimum of 4 positions must be selected.');
+                return;
+            }
+        
+            const lastPosition = selectedPositions[selectedPositions.length - 1];
+            if (lastPosition.row !== 0) {
+                alert('Last selected position must be in the top row.');
+                return;
+            }
+        
+            axios.post('/api/save-positions', selectedPositions)
+                .then(response => {
+                    // console.log('Response:', response.data);
+                    const gradeOutput = response.data.prediction;
+                    window.location.href = `/prediction?grade=${gradeOutput}`;
+                })
+                .catch(error => {
+                    console.error('Error saving positions:', error);
+                });
+        }
+
+        for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (let colIndex = 0; colIndex < cols; colIndex++) {
+                const cell = document.createElement('div');
+                cell.id = `cell-${rowIndex}-${colIndex}`;
+                cell.className = `grid-item ${matrix[rowIndex][colIndex].selectable ? '' : 'non-selectable'}`;
+                cell.style.top = `${(rowIndex / rows) * 100}%`;
+                cell.style.left = `${(colIndex / cols) * 100}%`;
+                cell.style.width = '9%'; // Adjust this value as needed
+                cell.style.height = '5.5%'; // Adjust this value as needed
+                cell.onclick = () => handleCellClick(rowIndex, colIndex);
+                gridContainer.appendChild(cell);
+            }
+        }
+    </script>
+</body>
+</html>

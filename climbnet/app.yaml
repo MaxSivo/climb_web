@@ -1,0 +1,14 @@
+runtime: python311
+entrypoint: gunicorn -b :$PORT main:app
+
+handlers:
+  # Static files handler
+  - url: /static
+    static_dir: static
+
+  # Main application handler
+  - url: .*
+    script: auto
+
+env_variables:
+  PYTHONUNBUFFERED: True
