@@ -1,0 +1,3 @@
+[submodule "WebFiles"]
+	path = WebFiles
+	url = https://github.com/Freeman-gif/Freeman-gif.github.io.git
