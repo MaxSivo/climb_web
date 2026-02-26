@@ -37,7 +37,7 @@ In this project, we implement a custom transformer model to predict climbing gra
 
 ## Web Files
 
-- Visit the `webfiles` folder to see how the website was built using **Docker**, **Flask**, **GCP**, and **React**.
+- Visit the `webfiles` folder to see how the website was built using **Docker**, **Flask**, **GCP**, and **JavaScript**.
 
 ---
 
